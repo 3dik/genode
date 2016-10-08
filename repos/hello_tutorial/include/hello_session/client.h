@@ -37,6 +37,16 @@ struct Hello::Session_client : Genode::Rpc_client<Session>
 	{
 		return call<Rpc_add>(a, b);
 	}
+
+	Nodef test_nodef( Nodef x, Nodef *y, Nodef &z )
+	{
+		return call<Rpc_test_nodef>( x, y, z );
+	}
+
+	Nodef test_nodef_exc( Nodef *a )
+	{
+		return call<Rpc_test_nodef_exc>( a );
+	}
 };
 
 #endif /* _INCLUDE__HELLO_SESSION_H__CLIENT_H_ */

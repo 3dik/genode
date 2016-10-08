@@ -29,5 +29,25 @@ void Component::construct(Genode::Env &env)
 	int const sum = hello.add(2, 5);
 	Genode::log("added 2 + 5 = ", sum);
 
+	Genode::log("Test is successful if all numbers between 1 and 10 are printed");
+
+	Hello::Nodef x( 1 ), y( 2 ), z( 3 );
+	Hello::Nodef ret = hello.test_nodef( x, &y, z );
+	ret.print(); //4
+	y.print(); //5
+	z.print(); //6
+
+	Hello::Nodef arg( 6 );
+	try {
+		hello.test_nodef_exc( &arg );
+		Genode::log( "Fail" );
+		return;
+	} catch ( Hello::Test_exception ) {}
+	arg.print(); //7
+	arg._content++;
+	ret = hello.test_nodef_exc( &arg ); 
+	arg.print(); //9
+	ret.print(); //10
+
 	Genode::log("hello test completed");
 }
