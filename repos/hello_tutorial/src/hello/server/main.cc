@@ -33,6 +33,26 @@ struct Hello::Session_component : Genode::Rpc_object<Session>
 
 	int add(int a, int b) {
 		return a + b; }
+
+	Nodef test_nodef( Nodef x, Nodef *y, Nodef &z ) {
+		x.print(); //1
+		y->print(); //2
+		z.print(); //3
+		y->_content = 5;
+		z._content  = 6;
+		return Nodef( 4 );
+	}
+
+	Nodef test_nodef_exc( Nodef *a ) {
+		if ( 6 == a->_content )
+		{
+			a->_content = 7;
+			throw Test_exception();
+		}
+		a->print(); //8
+		a->_content++;
+		return Nodef( 10 );
+	}
 };
 
 
