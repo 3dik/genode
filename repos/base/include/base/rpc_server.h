@@ -14,9 +14,8 @@
 #ifndef _INCLUDE__BASE__RPC_SERVER_H_
 #define _INCLUDE__BASE__RPC_SERVER_H_
 
-#include <base/rpc.h>
+#include <base/pod_tuple_tpl.h>
 #include <base/thread.h>
-#include <base/ipc.h>
 #include <base/object_pool.h>
 #include <base/lock.h>
 #include <base/log.h>
@@ -61,17 +60,6 @@ class Genode::Rpc_dispatcher : public RPC_INTERFACE
 	typedef typename RPC_INTERFACE::Rpc_functions Rpc_functions;
 
 	protected:
-
-		template <typename ARG_LIST>
-		void _read_args(Ipc_unmarshaller &msg, ARG_LIST &args)
-		{
-			if (Trait::Rpc_direction<typename ARG_LIST::Head>::Type::IN)
-				msg.extract(args._1);
-
-			_read_args(msg, args._2);
-		}
-
-		void _read_args(Ipc_unmarshaller &, Meta::Empty) { }
 
 		template <typename ARG_LIST>
 		void _write_results(Msgbuf_base &msg, ARG_LIST &args)
@@ -120,10 +108,9 @@ class Genode::Rpc_dispatcher : public RPC_INTERFACE
 
 			if (opcode.value == Index_of<Rpc_functions, This_rpc_function>::Value) {
 
-				typename This_rpc_function::Server_args args{};
-
-				/* read arguments from incoming message */
-				_read_args(in, args);
+				typedef typename This_rpc_function::Server_args Args;
+				typedef typename Rpc_direction<typename Args::Head>::Type First_rpc_dir;
+				Args args( in, Meta::Overload_selector<First_rpc_dir>() );
 
 				{
 					Trace::Rpc_dispatch trace_event(This_rpc_function::name());

@@ -16,6 +16,14 @@
 
 namespace Genode {
 
+	/**
+	 * Forward declaration for Pod_tuple
+	 */
+	struct Ipc_unmarshaller;
+	struct Rpc_arg_in;
+	struct Rpc_arg_out;
+	struct Rpc_arg_inout;
+
 	namespace Trait {
 
 		/***************************************
@@ -42,6 +50,29 @@ namespace Genode {
 	} /* namespace Trait */
 
 	namespace Meta {
+
+		/**
+		 * Utility for partial specialization of member function templates
+		 *
+		 * By passing an artificial 'Overload_selector' argument to a function
+		 * template, we can use overloading to partially specify such a
+		 * function template. The selection of the overload to use is directed
+		 * by one or two types specified as template arguments of
+		 * 'Overload_selector'.
+		 */
+		template <typename T1, typename T2 = T1>
+		struct Overload_selector
+		{
+			/*
+			 * Make class unique for different template arguments. The types
+			 * are never used.
+			 */
+			typedef T1 _T1;
+			typedef T2 _T2;
+
+			/* prevent zero initialization of objects */
+			Overload_selector() { }
+		};
 
 		/***********************************
 		 ** Variadic template type access **
@@ -71,8 +102,19 @@ namespace Genode {
 
 		/**
 		 * Marker for end of type list
+		 *
+		 * I misused it for allowing recursive constructor calls of Pod_tuple
 		 */
-		struct Empty { };
+		struct Empty {
+
+			Empty() = default;
+			Empty( Ipc_unmarshaller &, Overload_selector<Rpc_arg_in> ) {}
+			Empty( Ipc_unmarshaller &, Overload_selector<Rpc_arg_inout> ) {}
+			Empty( Ipc_unmarshaller &, Overload_selector<Rpc_arg_out> ) {}
+
+			typedef Empty Head;
+
+		};
 
 		/**
 		 * Basic building block for creating type lists
@@ -291,12 +333,23 @@ namespace Genode {
 
 		/**
 		 * Tuple holding raw (plain old) data
+		 *
+		 * To allow passing RPC arguments which are not default-constructible, each
+		 * argument is being copied directly into the Pod_tuple chain.
+		 *
+		 * There is one exception: due to the design of the class, output-only
+		 * arguments _do_ have to be default-constructible.
 		 */
 		template <typename HEAD, typename TAIL>
 		struct Pod_tuple : public Type_tuple<HEAD, TAIL>
 		{
 			typename Trait::Pod<HEAD>::Type _1;
 			typename Trait::Pod<TAIL>::Type _2;
+
+			Pod_tuple( Ipc_unmarshaller &msg, Overload_selector<Rpc_arg_in> );
+			Pod_tuple( Ipc_unmarshaller &msg, Overload_selector<Rpc_arg_inout> )
+				: Pod_tuple( msg, Overload_selector<Rpc_arg_in>() ) {}
+			Pod_tuple( Ipc_unmarshaller &msg, Overload_selector<Rpc_arg_out> );
 
 			/**
 			 * Accessor for requesting the data reference to '_1'
@@ -317,6 +370,11 @@ namespace Genode {
 		{
 			typename Trait::Non_reference<HEAD>::Type _1;
 			typename Trait::Non_reference<TAIL>::Type _2;
+
+			Pod_tuple( Ipc_unmarshaller &msg, Overload_selector<Rpc_arg_in> );
+			Pod_tuple( Ipc_unmarshaller &msg, Overload_selector<Rpc_arg_inout> )
+				: Pod_tuple( msg, Overload_selector<Rpc_arg_in>() ) {}
+			Pod_tuple( Ipc_unmarshaller &msg, Overload_selector<Rpc_arg_out> );
 
 			HEAD *get() { return &_1; }
 		};
@@ -590,28 +648,6 @@ namespace Genode {
 		struct Round_to_machine_word {
 			enum { Value = (SIZE + sizeof(long) - 1) & ~(sizeof(long) - 1) }; };
 
-		/**
-		 * Utility for partial specialization of member function templates
-		 *
-		 * By passing an artificial 'Overload_selector' argument to a function
-		 * template, we can use overloading to partially specify such a
-		 * function template. The selection of the overload to use is directed
-		 * by one or two types specified as template arguments of
-		 * 'Overload_selector'.
-		 */
-		template <typename T1, typename T2 = T1>
-		struct Overload_selector
-		{
-			/*
-			 * Make class unique for different template arguments. The types
-			 * are never used.
-			 */
-			typedef T1 _T1;
-			typedef T2 _T2;
-
-			/* prevent zero initialization of objects */
-			Overload_selector() { }
-		};
 
 		/**
 		 * Convert boolean value to type
