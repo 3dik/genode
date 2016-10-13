@@ -321,24 +321,6 @@ namespace Genode {
 			HEAD *get() { return &_1; }
 		};
 
-		template <typename T1, typename T2, typename T3>
-		struct Pod_tuple_3 : public Pod_tuple<T1, Pod_tuple<T2, T3> > { };
-
-		template <typename T1, typename T2, typename T3, typename T4>
-		struct Pod_tuple_4 : public Pod_tuple<T1, Pod_tuple_3<T2, T3, T4> > { };
-
-		template <typename T1, typename T2, typename T3, typename T4, typename T5>
-		struct Pod_tuple_5 : public Pod_tuple<T1, Pod_tuple_4<T2, T3, T4, T5> > { };
-
-		template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
-		struct Pod_tuple_6 : public Pod_tuple<T1, Pod_tuple_5<T2, T3, T4, T5, T6> > { };
-
-		template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7>
-		struct Pod_tuple_7 : public Pod_tuple<T1, Pod_tuple_6<T2, T3, T4, T5, T6, T7> > { };
-
-		template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8>
-		struct Pod_tuple_8 : public Pod_tuple<T1, Pod_tuple_7<T2, T3, T4, T5, T6, T7, T8> > { };
-
 
 		/*************************************************************************
 		 ** Support for representing function arguments in a normalized fashion **
@@ -409,22 +391,23 @@ namespace Genode {
 		struct Pod_args<T1, Void> { typedef Pod_tuple<T1, Empty> Type; };
 
 		template <typename T1, typename T2>
-		struct Pod_args<T1, T2, Void> { typedef Pod_tuple_3<T1, T2, Empty> Type; };
+		struct Pod_args<T1, T2, Void> { typedef Pod_tuple<T1, typename Pod_args<T2, Void>::Type> Type; };
 
 		template <typename T1, typename T2, typename T3>
-		struct Pod_args<T1, T2, T3, Void> { typedef Pod_tuple_4<T1, T2, T3, Empty> Type; };
+		struct Pod_args<T1, T2, T3, Void> { typedef Pod_tuple<T1, typename Pod_args<T2, T3, Void>::Type> Type; };
 
 		template <typename T1, typename T2, typename T3, typename T4>
-		struct Pod_args<T1, T2, T3, T4, Void> { typedef Pod_tuple_5<T1, T2, T3, T4, Empty> Type; };
+		struct Pod_args<T1, T2, T3, T4, Void> { typedef Pod_tuple<T1, typename Pod_args<T2, T3, T4, Void>::Type> Type; };
 
 		template <typename T1, typename T2, typename T3, typename T4, typename T5>
-		struct Pod_args<T1, T2, T3, T4, T5, Void> { typedef Pod_tuple_6<T1, T2, T3, T4, T5, Empty> Type; };
+		struct Pod_args<T1, T2, T3, T4, T5, Void> { typedef Pod_tuple<T1, typename Pod_args<T2, T3, T4, T5, Void>::Type> Type; };
 
 		template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
-		struct Pod_args<T1, T2, T3, T4, T5, T6, Void> { typedef Pod_tuple_7<T1, T2, T3, T4, T5, T6, Empty> Type; };
+		struct Pod_args<T1, T2, T3, T4, T5, T6, Void> { typedef Pod_tuple<T1, typename Pod_args<T2, T3, T4, T5, T6, Void>::Type> Type; };
 
 		template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7>
-		struct Pod_args<T1, T2, T3, T4, T5, T6, T7, Void> { typedef Pod_tuple_8<T1, T2, T3, T4, T5, T6, T7, Empty> Type; };
+		struct Pod_args<T1, T2, T3, T4, T5, T6, T7, Void> { typedef Pod_tuple<T1, typename Pod_args<T2, T3, T4, T5, T6, T7, Void>::Type> Type; };
+
 
 		/**
 		 * Helper for calling member functions via a uniform interface
