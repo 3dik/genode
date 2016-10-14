@@ -107,8 +107,8 @@ namespace Genode {
 
 	template <typename RPC_INTERFACE>
 	template <typename IF>
-	void Capability<RPC_INTERFACE>::
-	_call(typename IF::Client_args &args, typename IF::Ret_type &ret) const
+	typename IF::Ret_type Capability<RPC_INTERFACE>::
+	_call(typename IF::Client_args &args) const
 	{
 		/**
 		 * Message buffer for RPC message
@@ -144,7 +144,8 @@ namespace Genode {
 			throw Ipc_error();
 
 		Ipc_unmarshaller unmarshaller(reply_buf);
-		unmarshaller.extract(ret);
+		Meta::Overload_selector<typename IF::Ret_type> ret_overloader;
+		typename IF::Ret_type ret = unmarshaller.extract( ret_overloader );
 
 		{
 			Trace::Rpc_returned trace_event(IF::name(), reply_buf);
@@ -156,6 +157,8 @@ namespace Genode {
 		/* reflect callee-side exception at the caller */
 		_check_for_exceptions(exception_code,
 		                      Meta::Overload_selector<typename IF::Exceptions>());
+
+		return ret;
 	}
 }
 
