@@ -494,114 +494,114 @@ namespace Genode {
 		 */
 
 		template <typename RET_TYPE, typename SERVER, typename ARGS>
-		static inline void call_member(RET_TYPE &ret, SERVER &server, ARGS &,
+		static inline RET_TYPE call_member(SERVER &server, ARGS &,
 		                               RET_TYPE (SERVER::*func)())
-		{ ret = (server.*func)(); }
+		{ return (server.*func)(); }
 
 		template <typename RET_TYPE, typename SERVER, typename ARGS>
-		static inline void call_member(RET_TYPE &ret, SERVER &server, ARGS &,
+		static inline RET_TYPE call_member(SERVER &server, ARGS &,
 		                               RET_TYPE (SERVER::*func)() const)
-		{ ret = (server.*func)(); }
+		{ return (server.*func)(); }
 
 		template <typename RET_TYPE, typename SERVER, typename ARGS>
-		static inline void call_member(Meta::Empty &, SERVER &server, ARGS &,
+		static inline RET_TYPE call_member(SERVER &server, ARGS &,
 		                               void (SERVER::*func)())
-		{ (server.*func)(); }
+		{ (server.*func)(); return Empty();}
 
 		template <typename RET_TYPE, typename SERVER, typename ARGS>
-		static inline void call_member(Meta::Empty &, SERVER &server, ARGS &,
+		static inline RET_TYPE call_member(SERVER &server, ARGS &,
 		                               void (SERVER::*func)() const)
-		{ (server.*func)(); }
+		{ (server.*func)(); return Empty();}
 
 		/* 1 */
 		template <typename RET_TYPE, typename SERVER, typename ARGS>
-		static inline void call_member(RET_TYPE &ret, SERVER &server, ARGS &args,
+		static inline RET_TYPE call_member(SERVER &server, ARGS &args,
 		                               RET_TYPE (SERVER::*func)(typename Type_at<ARGS, 0>::Type))
-		{ ret = (server.*func)(args.get()); }
+		{ return (server.*func)(args.get()); }
 
 		template <typename RET_TYPE, typename SERVER, typename ARGS>
-		static inline void call_member(Meta::Empty &, SERVER &server, ARGS &args,
+		static inline RET_TYPE call_member(SERVER &server, ARGS &args,
 		                               void (SERVER::*func)(typename Type_at<ARGS, 0>::Type))
-		{ (server.*func)(args.get()); }
+		{ (server.*func)(args.get()); return Empty();}
 
 		/* 2 */
 		template <typename RET_TYPE, typename SERVER, typename ARGS>
-		static inline void call_member(RET_TYPE &ret, SERVER &server, ARGS &args,
+		static inline RET_TYPE call_member(SERVER &server, ARGS &args,
 		                               RET_TYPE (SERVER::*func)(typename Type_at<ARGS, 0>::Type,
 		                                                        typename Type_at<ARGS, 1>::Type))
-		{ ret = (server.*func)(args.get(), args._2.get()); }
+		{ return (server.*func)(args.get(), args._2.get()); }
 
 		template <typename RET_TYPE, typename SERVER, typename ARGS>
-		static inline void call_member(Meta::Empty &, SERVER &server, ARGS &args,
+		static inline RET_TYPE call_member(SERVER &server, ARGS &args,
 		                               void (SERVER::*func)(typename Type_at<ARGS, 0>::Type,
 		                                                    typename Type_at<ARGS, 1>::Type))
-		{ (server.*func)(args.get(), args._2.get()); }
+		{ (server.*func)(args.get(), args._2.get()); return Empty();}
 
 		/* 3 */
 		template <typename RET_TYPE, typename SERVER, typename ARGS>
-		static inline void call_member(RET_TYPE &ret, SERVER &server, ARGS &args,
+		static inline RET_TYPE call_member(SERVER &server, ARGS &args,
 		                               RET_TYPE (SERVER::*func)(typename Type_at<ARGS, 0>::Type,
 		                                                        typename Type_at<ARGS, 1>::Type,
 		                                                        typename Type_at<ARGS, 2>::Type))
-		{ ret = (server.*func)(args.get(), args._2.get(), args._2._2.get()); }
+		{ return (server.*func)(args.get(), args._2.get(), args._2._2.get()); }
 
 		template <typename RET_TYPE, typename SERVER, typename ARGS>
-		static inline void call_member(Meta::Empty &, SERVER &server, ARGS &args,
+		static inline RET_TYPE call_member(SERVER &server, ARGS &args,
 		                               void (SERVER::*func)(typename Type_at<ARGS, 0>::Type,
 		                                                    typename Type_at<ARGS, 1>::Type,
 		                                                    typename Type_at<ARGS, 2>::Type))
-		{ (server.*func)(args.get(), args._2.get(), args._2._2.get()); }
+		{ (server.*func)(args.get(), args._2.get(), args._2._2.get()); return Empty();}
 
 		/* 4 */
 		template <typename RET_TYPE, typename SERVER, typename ARGS>
-		static inline void call_member(RET_TYPE &ret, SERVER &server, ARGS &args,
+		static inline RET_TYPE call_member(SERVER &server, ARGS &args,
 		                               RET_TYPE (SERVER::*func)(typename Type_at<ARGS, 0>::Type,
 		                                                        typename Type_at<ARGS, 1>::Type,
 		                                                        typename Type_at<ARGS, 2>::Type,
 		                                                        typename Type_at<ARGS, 3>::Type))
-		{ ret = (server.*func)(args.get(), args._2.get(), args._2._2.get(), args._2._2._2.get()); }
+		{ return (server.*func)(args.get(), args._2.get(), args._2._2.get(), args._2._2._2.get()); }
 
 		template <typename RET_TYPE, typename SERVER, typename ARGS>
-		static inline void call_member(Meta::Empty &, SERVER &server, ARGS &args,
+		static inline RET_TYPE call_member(SERVER &server, ARGS &args,
 		                               void (SERVER::*func)(typename Type_at<ARGS, 0>::Type,
 		                                                    typename Type_at<ARGS, 1>::Type,
 		                                                    typename Type_at<ARGS, 2>::Type,
 		                                                    typename Type_at<ARGS, 3>::Type))
-		{ (server.*func)(args.get(), args._2.get(), args._2._2.get(), args._2._2._2.get()); }
+		{ (server.*func)(args.get(), args._2.get(), args._2._2.get(), args._2._2._2.get()); return Empty();}
 
 		/* 5 */
 		template <typename RET_TYPE, typename SERVER, typename ARGS>
-		static inline void call_member(RET_TYPE &ret, SERVER &server, ARGS &args,
+		static inline RET_TYPE call_member(SERVER &server, ARGS &args,
 		                               RET_TYPE (SERVER::*func)(typename Type_at<ARGS, 0>::Type,
 		                                                        typename Type_at<ARGS, 1>::Type,
 		                                                        typename Type_at<ARGS, 2>::Type,
 		                                                        typename Type_at<ARGS, 3>::Type,
 		                                                        typename Type_at<ARGS, 4>::Type))
-		{ ret = (server.*func)(args.get(), args._2.get(), args._2._2.get(), args._2._2._2.get(), args._2._2._2._2.get()); }
+		{ return (server.*func)(args.get(), args._2.get(), args._2._2.get(), args._2._2._2.get(), args._2._2._2._2.get()); }
 
 		template <typename RET_TYPE, typename SERVER, typename ARGS>
-		static inline void call_member(Meta::Empty &, SERVER &server, ARGS &args,
+		static inline RET_TYPE call_member(SERVER &server, ARGS &args,
 		                               void (SERVER::*func)(typename Type_at<ARGS, 0>::Type,
 		                                                    typename Type_at<ARGS, 1>::Type,
 		                                                    typename Type_at<ARGS, 2>::Type,
 		                                                    typename Type_at<ARGS, 3>::Type,
 		                                                    typename Type_at<ARGS, 4>::Type))
-		{ (server.*func)(args.get(), args._2.get(), args._2._2.get(), args._2._2._2.get(), args._2._2._2._2.get()); }
+		{ (server.*func)(args.get(), args._2.get(), args._2._2.get(), args._2._2._2.get(), args._2._2._2._2.get()); return Empty();}
 
 		/* 6 */
 		template <typename RET_TYPE, typename SERVER, typename ARGS>
-		static inline void call_member(RET_TYPE &ret, SERVER &server, ARGS &args,
+		static inline RET_TYPE call_member(SERVER &server, ARGS &args,
 		                               RET_TYPE (SERVER::*func)(typename Type_at<ARGS, 0>::Type,
 		                                                        typename Type_at<ARGS, 1>::Type,
 		                                                        typename Type_at<ARGS, 2>::Type,
 		                                                        typename Type_at<ARGS, 3>::Type,
 		                                                        typename Type_at<ARGS, 4>::Type,
 		                                                        typename Type_at<ARGS, 5>::Type))
-		{ ret = (server.*func)(args.get(), args._2.get(), args._2._2.get(), args._2._2._2.get(),
+		{ return (server.*func)(args.get(), args._2.get(), args._2._2.get(), args._2._2._2.get(),
 		                       args._2._2._2._2.get(), args._2._2._2._2._2.get()); }
 
 		template <typename RET_TYPE, typename SERVER, typename ARGS>
-		static inline void call_member(Meta::Empty &, SERVER &server, ARGS &args,
+		static inline RET_TYPE call_member(SERVER &server, ARGS &args,
 		                               void (SERVER::*func)(typename Type_at<ARGS, 0>::Type,
 		                                                    typename Type_at<ARGS, 1>::Type,
 		                                                    typename Type_at<ARGS, 2>::Type,
@@ -609,11 +609,11 @@ namespace Genode {
 		                                                    typename Type_at<ARGS, 4>::Type,
 		                                                    typename Type_at<ARGS, 5>::Type))
 		{ (server.*func)(args.get(), args._2.get(), args._2._2.get(), args._2._2._2.get(),
-		                 args._2._2._2._2.get(), args._2._2._2._2._2.get()); }
+		                 args._2._2._2._2.get(), args._2._2._2._2._2.get()); return Empty();}
 
 		/* 7 */
 		template <typename RET_TYPE, typename SERVER, typename ARGS>
-		static inline void call_member(RET_TYPE &ret, SERVER &server, ARGS &args,
+		static inline RET_TYPE call_member(SERVER &server, ARGS &args,
 		                               RET_TYPE (SERVER::*func)(typename Type_at<ARGS, 0>::Type,
 		                                                        typename Type_at<ARGS, 1>::Type,
 		                                                        typename Type_at<ARGS, 2>::Type,
@@ -621,11 +621,11 @@ namespace Genode {
 		                                                        typename Type_at<ARGS, 4>::Type,
 		                                                        typename Type_at<ARGS, 5>::Type,
 		                                                        typename Type_at<ARGS, 6>::Type))
-		{ ret = (server.*func)(args.get(), args._2.get(), args._2._2.get(), args._2._2._2.get(),
+		{ return (server.*func)(args.get(), args._2.get(), args._2._2.get(), args._2._2._2.get(),
 		                       args._2._2._2._2.get(), args._2._2._2._2._2.get(), args._2._2._2._2._2._2.get()); }
 
 		template <typename RET_TYPE, typename SERVER, typename ARGS>
-		static inline void call_member(Meta::Empty &, SERVER &server, ARGS &args,
+		static inline RET_TYPE call_member(SERVER &server, ARGS &args,
 		                               void (SERVER::*func)(typename Type_at<ARGS, 0>::Type,
 		                                                    typename Type_at<ARGS, 1>::Type,
 		                                                    typename Type_at<ARGS, 2>::Type,
@@ -634,7 +634,7 @@ namespace Genode {
 		                                                    typename Type_at<ARGS, 5>::Type,
 		                                                    typename Type_at<ARGS, 6>::Type))
 		{ (server.*func)(args.get(), args._2.get(), args._2._2.get(), args._2._2._2.get(),
-		                 args._2._2._2._2.get(), args._2._2._2._2._2.get(), args._2._2._2._2._2._2.get()); }
+		                 args._2._2._2._2.get(), args._2._2._2._2._2.get(), args._2._2._2._2._2._2.get()); return Empty();}
 
 
 		/********************
