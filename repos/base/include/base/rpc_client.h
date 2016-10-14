@@ -144,8 +144,6 @@ namespace Genode {
 			throw Ipc_error();
 
 		Ipc_unmarshaller unmarshaller(reply_buf);
-		Meta::Overload_selector<typename IF::Ret_type> ret_overloader;
-		typename IF::Ret_type ret = unmarshaller.extract( ret_overloader );
 
 		{
 			Trace::Rpc_returned trace_event(IF::name(), reply_buf);
@@ -158,7 +156,9 @@ namespace Genode {
 		_check_for_exceptions(exception_code,
 		                      Meta::Overload_selector<typename IF::Exceptions>());
 
-		return ret;
+		/* the return value does only exist if no exception was thrown */
+		Meta::Overload_selector<typename IF::Ret_type> ret_overloader;
+		return unmarshaller.extract( ret_overloader );
 	}
 }
 

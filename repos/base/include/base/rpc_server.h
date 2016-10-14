@@ -85,28 +85,34 @@ class Genode::Rpc_dispatcher : public RPC_INTERFACE
 		void _write_results(Msgbuf_base &, Meta::Empty) { }
 
 		template <typename RPC_FUNCTION, typename EXC_TL>
-		Rpc_exception_code _do_serve(typename RPC_FUNCTION::Server_args &args,
-		                             typename RPC_FUNCTION::Ret_type    &ret,
-		                             Meta::Overload_selector<RPC_FUNCTION, EXC_TL>)
+		typename RPC_FUNCTION::Ret_type
+		_do_serve( typename RPC_FUNCTION::Server_args &args,
+		           Meta::Overload_selector<RPC_FUNCTION, EXC_TL> )
 		{
 			enum { EXCEPTION_CODE = Rpc_exception_code::EXCEPTION_BASE
 			                      - Meta::Length<EXC_TL>::Value };
 			try {
 				typedef typename EXC_TL::Tail Exc_tail;
-				return _do_serve(args, ret,
+				return _do_serve(args,
 				                 Meta::Overload_selector<RPC_FUNCTION, Exc_tail>());
 			} catch (typename EXC_TL::Head) {
-				return Rpc_exception_code(EXCEPTION_CODE);
+				/**
+				 * By passing the exception code through an exception we ensure that
+				 * a return value is only returned if it exists. This way, the return
+				 * type does not have to be default-constructible.
+				 */
+				throw Rpc_exception_code(EXCEPTION_CODE);
 			}
 		}
 
 		template <typename RPC_FUNCTION>
-		Rpc_exception_code _do_serve(typename RPC_FUNCTION::Server_args &args,
-		                             typename RPC_FUNCTION::Ret_type    &ret,
-		                             Meta::Overload_selector<RPC_FUNCTION, Meta::Empty>)
+		typename RPC_FUNCTION::Ret_type
+		_do_serve( typename RPC_FUNCTION::Server_args &args,
+		           Meta::Overload_selector<RPC_FUNCTION, Meta::Empty> )
 		{
-			RPC_FUNCTION::serve(*static_cast<SERVER *>(this), args, ret);
-			return Rpc_exception_code(Rpc_exception_code::SUCCESS);
+			typedef typename RPC_FUNCTION::Ret_type Ret_type;
+			SERVER *me = static_cast<SERVER *>( this );
+			return RPC_FUNCTION::template serve<SERVER, Ret_type>( *me, args );
 		}
 
 		template <typename RPC_FUNCTIONS_TO_CHECK>
@@ -134,21 +140,28 @@ class Genode::Rpc_dispatcher : public RPC_INTERFACE
 				 * 'This_rpc_function' and the list of its exceptions to
 				 * select the overload.
 				 */
-				typedef typename This_rpc_function::Exceptions Exceptions;
 
-				typename This_rpc_function::Ret_type ret { };
-				Rpc_exception_code
-					exc(_do_serve(args, ret,
-					              Overload_selector<This_rpc_function, Exceptions>()));
+				typedef typename This_rpc_function::Ret_type Ret_type;
+				Rpc_exception_code exc( Rpc_exception_code::SUCCESS );
+				try {
+					typedef typename This_rpc_function::Exceptions Exceptions;
+					Overload_selector<This_rpc_function, Exceptions> overloader;
+					Ret_type ret = _do_serve( args, overloader );
 
-				out.insert(ret);
+					_write_results(out, args);
+					out.insert( ret );
+				} catch ( Rpc_exception_code thrown ) {
+					/**
+					 * Output arguments may be modified although an exception was thrown.
+					 * However, a return value does not exist. So we do not insert one.
+					 */
+					_write_results(out, args);
+					exc = thrown;
+				}
 
 				{
 					Trace::Rpc_reply trace_event(This_rpc_function::name());
 				}
-
-				/* write results to outgoing message */
-				_write_results(out, args);
 
 				return exc;
 			}
