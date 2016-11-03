@@ -301,7 +301,7 @@ namespace Genode {
 		{
 			typedef typename Trait::Pod<HEAD>::Type Stored_head;
 			Stored_head _1;
-			typename Trait::Pod<TAIL>::Type _2;
+			TAIL _2;
 
 			typedef HEAD Head;
 			typedef TAIL Tail;
@@ -325,7 +325,7 @@ namespace Genode {
 		{
 			typedef typename Trait::Non_reference<HEAD>::Type Stored_head;
 			Stored_head _1;
-			typename Trait::Non_reference<TAIL>::Type _2;
+			TAIL _2;
 
 			typedef HEAD* Head;
 			typedef TAIL Tail;
