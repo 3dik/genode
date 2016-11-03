@@ -63,15 +63,44 @@ class Genode::Rpc_dispatcher : public RPC_INTERFACE
 	protected:
 
 		template <typename ARG_LIST>
-		void _read_args(Ipc_unmarshaller &msg, ARG_LIST &args)
+		ARG_LIST _read_args( Ipc_unmarshaller &msg,
+		                     Meta::Overload_selector<ARG_LIST> )
 		{
-			if (Trait::Rpc_direction<typename ARG_LIST::Head>::Type::IN)
-				msg.extract(args._1);
+			typename Trait::Rpc_direction<typename ARG_LIST::Head>::Type direction;
+			typedef typename ARG_LIST::Stored_head Arg;
+			Arg arg = _read_arg<Arg>( msg, direction );
 
-			_read_args(msg, args._2);
+			Meta::Overload_selector<typename ARG_LIST::Tail> tail_selector;
+			typename ARG_LIST::Tail subsequent_args = _read_args( msg,
+			                                                      tail_selector );
+
+			ARG_LIST args { arg, subsequent_args };
+			return args;
 		}
 
-		void _read_args(Ipc_unmarshaller &, Meta::Empty) { }
+		Meta::Empty _read_args( Ipc_unmarshaller &msg,
+		                        Meta::Overload_selector<Meta::Empty> )
+		{
+			return Meta::Empty();
+		}
+
+		template <typename ARG>
+		ARG _read_arg( Ipc_unmarshaller &msg, Rpc_arg_in )
+		{
+			return msg.extract( Meta::Overload_selector<ARG>() );
+		}
+
+		template <typename ARG>
+		ARG _read_arg( Ipc_unmarshaller &msg, Rpc_arg_inout )
+		{
+			return _read_arg<ARG>( msg, Rpc_arg_in() );
+		}
+
+		template <typename ARG>
+		ARG _read_arg( Ipc_unmarshaller &msg, Rpc_arg_out )
+		{
+			return ARG();
+		}
 
 		template <typename ARG_LIST>
 		void _write_results(Msgbuf_base &msg, ARG_LIST &args)
@@ -126,10 +155,10 @@ class Genode::Rpc_dispatcher : public RPC_INTERFACE
 
 			if (opcode.value == Index_of<Rpc_functions, This_rpc_function>::Value) {
 
-				typename This_rpc_function::Server_args args{};
-
 				/* read arguments from incoming message */
-				_read_args(in, args);
+				typedef typename This_rpc_function::Server_args Server_args;
+				Meta::Overload_selector<Server_args> arg_selector;
+				Server_args args = _read_args( in, arg_selector );
 
 				{
 					Trace::Rpc_dispatch trace_event(This_rpc_function::name());

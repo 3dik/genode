@@ -291,17 +291,25 @@ namespace Genode {
 
 		/**
 		 * Tuple holding raw (plain old) data
+		 *
+		 * Has to be an aggregate type to allow non-default-constructible RPC
+		 * arguments. But aggregate types must not derive from a base class in Cx11.
+		 * So we do not derive from Meta::Type_tuple although it is an empty class.
 		 */
 		template <typename HEAD, typename TAIL>
-		struct Pod_tuple : public Type_tuple<HEAD, TAIL>
+		struct Pod_tuple
 		{
-			typename Trait::Pod<HEAD>::Type _1;
+			typedef typename Trait::Pod<HEAD>::Type Stored_head;
+			Stored_head _1;
 			typename Trait::Pod<TAIL>::Type _2;
+
+			typedef HEAD Head;
+			typedef TAIL Tail;
 
 			/**
 			 * Accessor for requesting the data reference to '_1'
 			 */
-			typename Trait::Pod<HEAD>::Type &get() { return _1; }
+			Stored_head &get() { return _1; }
 		};
 
 		/**
@@ -313,10 +321,14 @@ namespace Genode {
 		 * function returns a pointer to the stored copy.
 		 */
 		template <typename HEAD, typename TAIL>
-		struct Pod_tuple<HEAD *, TAIL> : public Type_tuple<HEAD *, TAIL>
+		struct Pod_tuple<HEAD *, TAIL>
 		{
-			typename Trait::Non_reference<HEAD>::Type _1;
+			typedef typename Trait::Non_reference<HEAD>::Type Stored_head;
+			Stored_head _1;
 			typename Trait::Non_reference<TAIL>::Type _2;
+
+			typedef HEAD* Head;
+			typedef TAIL Tail;
 
 			HEAD *get() { return &_1; }
 		};
